@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rage Bait 計算風格學分析｜Chinese EmoBank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #FAF6EE;
+  --paper-dark: #F0EAD9;
+  --ink: #1A1A1A;
+  --ink-soft: #4A4A4A;
+  --ink-fade: #8A8A85;
+  --rule: #2C2C2C;
+  --rule-soft: #D4CFC0;
+  --accent: #8B1A1A;
+  --accent-soft: #B23A3A;
+  --accent-bg: #F4E5E5;
+  --gold: #B8860B;
+  --teal: #2C5F5D;
+  --quad-q1: #C9A227;
+  --quad-q2: #8B1A1A;
+  --quad-q3: #4A6B82;
+  --quad-q4: #5C7752;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Noto Sans TC', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.7;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(139, 26, 26, 0.025), transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(184, 134, 11, 0.02), transparent 50%);
+  min-height: 100vh;
+}
+
+/* Subtle paper grain */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: multiply;
+}
+
+main { position: relative; z-index: 2; }
+
+.font-serif { font-family: 'Noto Serif TC', serif; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+
+/* ── HEADER ─────────────────────────────────────── */
+header.masthead {
+  border-bottom: 3px double var(--rule);
+  padding: 32px 5vw 18px;
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.masthead-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+
+.brand-title {
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 900;
+  font-size: clamp(24px, 3.2vw, 36px);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.brand-title em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.brand-subtitle {
+  font-size: 12px;
+  color: var(--ink-fade);
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.masthead-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--ink-soft);
+  letter-spacing: 0.05em;
+}
+
+.masthead-meta .date {
+  font-family: 'Noto Serif TC', serif;
+  font-style: italic;
+}
+
+.dict-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.dict-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ── NAV TABS ──────────────────────────────────── */
+.tabs {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 5vw;
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--rule-soft);
+  position: sticky;
+  top: 110px;
+  z-index: 49;
+  background: var(--paper);
+}
+
+.tab {
+  background: none;
+  border: none;
+  padding: 14px 24px;
+  font-family: 'Noto Serif TC', serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-fade);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s;
+  position: relative;
+  letter-spacing: 0.02em;
+}
+
+.tab:hover { color: var(--ink); }
+
+.tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 700;
+}
+
+.tab .count {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  border-radius: 2px;
+  vertical-align: 1px;
+}
+
+.tab.active .count { background: var(--accent); }
+
+/* ── MAIN LAYOUT ───────────────────────────────── */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 5vw 80px;
+}
+
+.view { display: none; animation: fadeIn 0.4s ease; }
+.view.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SECTION HEADERS ──────────────────────────── */
+.section-head {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.section-num {
+  font-family: 'Noto Serif TC', serif;
+  font-style: italic;
+  color: var(--accent);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+}
+
+.section-title {
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+}
+
+.section-meta {
+  font-size: 11px;
+  color: var(--ink-fade);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.05em;
+}
+
+/* ── INTRO ─────────────────────────────────────── */
+.intro {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 48px;
+  margin-bottom: 56px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+@media (max-width: 768px) {
+  .intro { grid-template-columns: 1fr; gap: 24px; }
+}
+
+.intro-lede {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+
+.intro-lede strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.intro-lede::first-letter {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 56px;
+  font-weight: 900;
+  float: left;
+  line-height: 0.9;
+  margin: 6px 8px 0 0;
+  color: var(--accent);
+}
+
+.intro-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  background: var(--paper-dark);
+  border-left: 4px solid var(--accent);
+}
+
+.intro-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  border-bottom: 1px dotted var(--rule-soft);
+  padding-bottom: 10px;
+}
+
+.intro-stat:last-child { border-bottom: none; padding-bottom: 0; }
+
+.intro-stat-label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.intro-stat-val {
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--accent);
+  font-feature-settings: 'tnum';
+}
+
+/* ── FORM ──────────────────────────────────────── */
+.form-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 32px;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.form-card::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  height: 4px;
+  background: var(--accent);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 24px;
+}
+
+.form-grid .full { grid-column: 1 / -1; }
+
+@media (max-width: 640px) {
+  .form-grid { grid-template-columns: 1fr; }
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+
+.field label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.field label .req {
+  color: var(--accent);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.field label .hint {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--ink-fade);
+  text-transform: none;
+  letter-spacing: 0;
+  font-style: italic;
+}
+
+.field input,
+.field textarea,
+.field select {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--rule-soft);
+  background: var(--paper);
+  color: var(--ink);
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--paper-dark);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+  font-family: 'Noto Serif TC', serif;
+  font-size: 15px;
+}
+
+.field input[type="number"] {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule-soft);
+  flex-wrap: wrap;
+}
+
+button {
+  font-family: 'Noto Sans TC', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+}
+
+.btn {
+  padding: 11px 22px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+
+.btn.primary:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.btn.ghost {
+  border-color: var(--rule-soft);
+  color: var(--ink-soft);
+}
+
+.btn.ghost:hover {
+  background: var(--paper-dark);
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.btn .arrow {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 16px;
+}
+
+/* ── POST LIST ─────────────────────────────────── */
+.posts-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-item {
+  border-bottom: 1px solid var(--rule-soft);
+  padding: 24px 0;
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  gap: 24px;
+  align-items: start;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.post-item:hover {
+  background: var(--paper-dark);
+  margin: 0 -16px;
+  padding: 24px 16px;
+}
+
+.post-num {
+  font-family: 'Noto Serif TC', serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 32px;
+  color: var(--accent);
+  line-height: 1;
+  font-feature-settings: 'tnum';
+}
+
+.post-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.post-text {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+.post-text .matched {
+  background: var(--accent-bg);
+  border-bottom: 2px solid var(--accent-soft);
+  padding: 1px 2px;
+  cursor: help;
+  position: relative;
+}
+
+.post-text .matched.rage {
+  background: var(--accent);
+  color: var(--paper);
+  border-bottom-color: var(--ink);
+  font-weight: 600;
+}
+
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 11px;
+  color: var(--ink-fade);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.03em;
+  border-top: 1px dotted var(--rule-soft);
+  padding-top: 8px;
+}
+
+.post-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.post-meta-item strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.post-meta-item.va {
+  background: var(--paper-dark);
+  padding: 2px 8px;
+  border: 1px solid var(--rule-soft);
+}
+
+.post-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.post-actions .engagement {
+  display: flex;
+  gap: 12px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.engagement-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 50px;
+}
+
+.engagement-stat .num {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+  font-feature-settings: 'tnum';
+}
+
+.engagement-stat .lbl {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-fade);
+}
+
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid var(--rule-soft);
+  color: var(--ink-fade);
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Noto Serif TC', serif;
+}
+
+.btn-icon:hover {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--ink-fade);
+}
+
+.empty-state .glyph {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 80px;
+  color: var(--rule-soft);
+  font-weight: 900;
+  font-style: italic;
+  margin-bottom: 16px;
+}
+
+.empty-state-title {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 18px;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+
+/* ── ANALYSIS DASHBOARD ───────────────────────── */
+.analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-bottom: 48px;
+}
+
+@media (max-width: 800px) {
+  .analysis-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.kpi {
+  background: var(--paper);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kpi-label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-fade);
+  font-weight: 700;
+}
+
+.kpi-value {
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 900;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--ink);
+  font-feature-settings: 'tnum';
+}
+
+.kpi-value .unit {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink-fade);
+  margin-left: 4px;
+}
+
+.kpi-sub {
+  font-size: 10px;
+  color: var(--ink-fade);
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 4px;
+}
+
+/* ── CORRELATION TABLE ─────────────────────────── */
+.corr-section {
+  margin-bottom: 56px;
+}
+
+.corr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--paper);
+}
+
+.corr-table th,
+.corr-table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.corr-table thead th {
+  border-bottom: 2px solid var(--rule);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-soft);
+  background: var(--paper-dark);
+}
+
+.corr-table th.feat,
+.corr-table td.feat {
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 500;
+  color: var(--ink);
+  width: 30%;
+}
+
+.corr-table td.r-cell {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  text-align: center;
+  position: relative;
+}
+
+.corr-cell-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--accent-bg);
+  z-index: 0;
+}
+
+.corr-cell-bar.neg { background: rgba(74, 107, 130, 0.15); }
+
+.corr-cell-content {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sig-badge {
+  display: inline-block;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 1px 5px;
+  background: var(--accent);
+  color: var(--paper);
+}
+
+.sig-badge.ns {
+  background: transparent;
+  color: var(--ink-fade);
+  border: 1px solid var(--rule-soft);
+}
+
+/* ── VA SCATTER PLOT ──────────────────────────── */
+.va-section {
+  margin-bottom: 56px;
+}
+
+.va-plot-wrap {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .va-plot-wrap { grid-template-columns: 1fr; }
+}
+
+.va-plot {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+}
+
+.va-plot svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.va-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.legend-section {
+  padding: 16px;
+  background: var(--paper-dark);
+  border-left: 3px solid var(--accent);
+}
+
+.legend-section h4 {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+
+.legend-section p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.quadrant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.quad-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.quad-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+/* ── COMPARISON TABLE ─────────────────────────── */
+.compare-section {
+  margin-bottom: 56px;
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--paper);
+}
+
+.compare-table th,
+.compare-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.compare-table thead th {
+  border-bottom: 2px solid var(--rule);
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 700;
+  font-size: 12px;
+  text-align: center;
+}
+
+.compare-table thead th:first-child { text-align: left; }
+
+.compare-table .feat-name {
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 500;
+}
+
+.compare-table td.num {
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.compare-table td.diff {
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+}
+
+.compare-table td.diff.pos { color: var(--accent); }
+.compare-table td.diff.neg { color: var(--teal); }
+
+/* ── EXPORT BAR ─────────────────────────────────── */
+.export-bar {
+  display: flex;
+  gap: 12px;
+  padding: 20px 24px;
+  background: var(--paper-dark);
+  border: 1px solid var(--rule-soft);
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-top: 32px;
+}
+
+.export-bar-text {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.export-bar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── TOOLTIP ───────────────────────────────────── */
+.tooltip {
+  position: absolute;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 8px 12px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  pointer-events: none;
+  z-index: 100;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.15s;
+  transform: translate(-50%, -100%);
+  margin-top: -8px;
+}
+
+.tooltip.show { opacity: 1; }
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--ink);
+}
+
+/* ── TOAST ──────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 12px 24px;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  z-index: 200;
+  transition: transform 0.3s;
+  border-left: 4px solid var(--accent);
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── LOADING ────────────────────────────────────── */
+.loader {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--rule-soft);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  flex-direction: column;
+  gap: 16px;
+  transition: opacity 0.3s;
+}
+
+.loading-screen.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-screen .glyph {
+  font-family: 'Noto Serif TC', serif;
+  font-style: italic;
+  font-size: 64px;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.loading-screen .text {
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-fade);
+}
+
+/* ── DETAIL MODAL ──────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+  backdrop-filter: blur(2px);
+}
+
+.modal-overlay.show { display: flex; }
+
+.modal {
+  background: var(--paper);
+  max-width: 700px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  border: 1px solid var(--rule);
+  position: relative;
+}
+
+.modal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--accent);
+}
+
+.modal-header {
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid var(--rule-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.modal-title {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.modal-close {
+  background: none;
+  border: 1px solid var(--rule-soft);
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  font-family: serif;
+}
+
+.modal-close:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.modal-body { padding: 24px 28px; }
+
+.matched-words-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.matched-word-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--paper-dark);
+  border: 1px solid var(--rule-soft);
+  font-size: 12px;
+  font-family: 'Noto Serif TC', serif;
+}
+
+.matched-word-chip.rage {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+
+.matched-word-chip .va {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+/* ── FOOTER ────────────────────────────────────── */
+footer {
+  border-top: 3px double var(--rule);
+  padding: 32px 5vw;
+  margin-top: 80px;
+  font-size: 11px;
+  color: var(--ink-fade);
+  text-align: center;
+  letter-spacing: 0.05em;
+  line-height: 1.8;
+}
+
+footer .citation {
+  font-family: 'Noto Serif TC', serif;
+  font-style: italic;
+  font-size: 11px;
+  color: var(--ink-soft);
+  max-width: 800px;
+  margin: 8px auto;
+}
+
+/* ── INLINE NOTICES ─────────────────────────────── */
+.notice {
+  padding: 14px 18px;
+  margin: 16px 0;
+  background: var(--paper-dark);
+  border-left: 3px solid var(--gold);
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loadingScreen">
+  <div class="glyph">怒</div>
+  <div class="text">載入 Chinese EmoBank 詞典中</div>
+  <div class="loader"></div>
+</div>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <div class="brand-eyebrow">Computational Stylometry · Vol. I</div>
+      <div class="brand-title"><em>Rage</em> Bait <span style="font-style:italic;font-weight:400;">研究計畫</span></div>
+      <div class="brand-subtitle">基於 Chinese EmoBank 維度情感分析　|　Threads 平台語料</div>
+    </div>
+    <div class="masthead-meta">
+      <div class="dict-badge"><span class="dot"></span>CVAW + CVAP　<span id="dictCount">5,512</span> entries</div>
+      <div class="date" id="todayDate"></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="entry">資料蒐集 <span class="count" id="postCount">0</span></button>
+  <button class="tab" data-tab="analysis">分析報告</button>
+  <button class="tab" data-tab="lexicon">詞典查詢</button>
+  <button class="tab" data-tab="about">關於本研究</button>
+</nav>
+
+<main>
+<div class="container">
+
+<!-- ════ VIEW 1: ENTRY ══════════════════════════════ -->
+<section class="view active" id="view-entry">
+
+  <div class="intro">
+    <p class="intro-lede">
+      憤怒做為一種商品，正在重新定義網路注意力經濟。本研究透過 <strong>Chinese EmoBank</strong>
+      的二維情感模型（valence × arousal），量化分析 Threads 平台上 rage bait 貼文的語言特徵與其流量表現的關係。請於下方輸入貼文資料；系統將自動進行斷詞、詞典比對與情感計算。
+    </p>
+    <div class="intro-stats">
+      <div class="intro-stat">
+        <span class="intro-stat-label">已蒐集貼文</span>
+        <span class="intro-stat-val" id="statTotalPosts">0</span>
+      </div>
+      <div class="intro-stat">
+        <span class="intro-stat-label">總按讚數</span>
+        <span class="intro-stat-val" id="statTotalLikes">0</span>
+      </div>
+      <div class="intro-stat">
+        <span class="intro-stat-label">平均覆蓋率</span>
+        <span class="intro-stat-val" id="statCoverage">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <div>
+      <div class="section-num">§ I</div>
+      <div class="section-title">新增貼文</div>
+    </div>
+    <div class="section-meta">FORM · 必填欄位以星號標示</div>
+  </div>
+
+  <div class="form-card">
+    <form id="postForm">
+      <div class="form-grid">
+        <div class="field full">
+          <label>貼文內容 <span class="req">*</span> <span class="hint">完整原文，含標點與表情符號</span></label>
+          <textarea id="f_content" required placeholder="貼上完整的 Threads 貼文..."></textarea>
+        </div>
+        <div class="field">
+          <label>❤️ 按讚數 <span class="req">*</span></label>
+          <input type="number" id="f_likes" min="0" required>
+        </div>
+        <div class="field">
+          <label>💬 留言數 <span class="req">*</span></label>
+          <input type="number" id="f_comments" min="0" required>
+        </div>
+        <div class="field">
+          <label>🔁 分享/轉發 <span class="req">*</span></label>
+          <input type="number" id="f_shares" min="0" required>
+        </div>
+        <div class="field">
+          <label>發文日期 <span class="hint">選填</span></label>
+          <input type="date" id="f_date">
+        </div>
+        <div class="field">
+          <label>帳號名稱 <span class="hint">選填</span></label>
+          <input type="text" id="f_account" placeholder="@example_account">
+        </div>
+        <div class="field">
+          <label>議題類型 <span class="hint">選填</span></label>
+          <select id="f_topic">
+            <option value="">—</option>
+            <option>政治</option><option>健康</option><option>社會</option>
+            <option>性別</option><option>族群</option><option>教育</option>
+            <option>經濟</option><option>娛樂</option><option>其他</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>貼文連結 / 備註 <span class="hint">選填</span></label>
+          <input type="text" id="f_url" placeholder="https://www.threads.net/...">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn primary">新增貼文 <span class="arrow">→</span></button>
+        <button type="reset" class="btn ghost">清除</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="section-head">
+    <div>
+      <div class="section-num">§ II</div>
+      <div class="section-title">已蒐集語料</div>
+    </div>
+    <div class="section-meta" id="corpusMeta">CORPUS · 0 篇貼文</div>
+  </div>
+
+  <div id="postsList" class="posts-list">
+    <div class="empty-state">
+      <div class="glyph">∅</div>
+      <div class="empty-state-title">尚未新增任何貼文</div>
+      <div>從上方表單開始填寫，或匯入既有的 CSV</div>
+    </div>
+  </div>
+
+  <div class="export-bar">
+    <div class="export-bar-text">資料儲存於本機瀏覽器 · 建議定期匯出備份</div>
+    <div class="export-bar-actions">
+      <button class="btn ghost" id="btnImport">匯入 CSV</button>
+      <input type="file" id="fileImport" accept=".csv" style="display:none;">
+      <button class="btn ghost" id="btnExportCsv">匯出 CSV</button>
+      <button class="btn ghost" id="btnExportJson">匯出 JSON</button>
+      <button class="btn" id="btnClear">清空全部</button>
+    </div>
+  </div>
+
+</section>
+
+<!-- ════ VIEW 2: ANALYSIS ════════════════════════════ -->
+<section class="view" id="view-analysis">
+
+  <div class="section-head">
+    <div>
+      <div class="section-num">§ III</div>
+      <div class="section-title">敘述統計</div>
+    </div>
+    <div class="section-meta" id="analysisN">N = 0</div>
+  </div>
+
+  <div id="analysisContent">
+    <div class="empty-state">
+      <div class="glyph">N</div>
+      <div class="empty-state-title">尚無足夠資料進行分析</div>
+      <div>請先於「資料蒐集」分頁輸入至少 5 篇貼文</div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ════ VIEW 3: LEXICON ═════════════════════════════ -->
+<section class="view" id="view-lexicon">
+  <div class="section-head">
+    <div>
+      <div class="section-num">§ IV</div>
+      <div class="section-title">詞典查詢</div>
+    </div>
+    <div class="section-meta">CVAW · CVAP</div>
+  </div>
+
+  <div class="form-card" style="margin-bottom: 32px;">
+    <div class="field full">
+      <label>查詢詞彙 <span class="hint">輸入單詞或片語檢視其 V/A 分數</span></label>
+      <input type="text" id="lexSearch" placeholder="例如：抓狂、人渣、滿足...">
+    </div>
+  </div>
+
+  <div id="lexResults"></div>
+</section>
+
+<!-- ════ VIEW 4: ABOUT ═══════════════════════════════ -->
+<section class="view" id="view-about">
+  <div class="section-head">
+    <div>
+      <div class="section-num">§ V</div>
+      <div class="section-title">關於本研究</div>
+    </div>
+  </div>
+
+  <div style="max-width: 720px; font-family: 'Noto Serif TC', serif; line-height: 1.85;">
+    <h3 style="font-weight:700;font-size:18px;margin-bottom:12px;">研究背景</h3>
+    <p style="margin-bottom:24px;color:var(--ink-soft);">
+      Rage bait（憤怒誘餌）是社群媒體時代興起的一種內容策略，創作者刻意使用激起觀眾憤怒、不滿或道德義憤的語言，以最大化互動數據。本研究嘗試透過計算風格學（computational stylometry）方法，量化此類貼文的語言特徵，並檢驗用詞與流量之間的關聯性。
+    </p>
+
+    <h3 style="font-weight:700;font-size:18px;margin-bottom:12px;">方法論</h3>
+    <p style="margin-bottom:24px;color:var(--ink-soft);">
+      採用 Lee et al. (2022) 建立之 <strong>Chinese EmoBank</strong> 維度情感詞典，包含 5,512 個詞彙（CVAW）與 2,250 個片語（CVAP）。每個詞條由多位母語標注者依 Self-Assessment Manikin 量表評定 valence（1=極負, 9=極正）與 arousal（1=平靜, 9=激動）兩維度分數。本系統採用最長匹配（greedy longest-match）斷詞策略對應詞典，計算各篇貼文的情感特徵；統計分析使用 Spearman 等級相關係數檢驗風格特徵與流量指標（按讚、留言、分享）的關聯。
+    </p>
+
+    <h3 style="font-weight:700;font-size:18px;margin-bottom:12px;">引用文獻</h3>
+    <div class="notice" style="margin-top:0;">
+      Lee, L.-H., Li, J.-H., &amp; Yu, L.-C. (2022). Chinese EmoBank: Building valence-arousal resources for dimensional sentiment analysis. <em>ACM Transactions on Asian and Low-Resource Language Information Processing, 21</em>(4), Article 65.
+    </div>
+
+    <h3 style="font-weight:700;font-size:18px;margin:24px 0 12px;">資料隱私</h3>
+    <p style="color:var(--ink-soft);">
+      所有貼文資料儲存於使用者瀏覽器之 localStorage，不會傳送至任何伺服器。關閉瀏覽器或清除快取仍會保留資料；建議定期使用「匯出 CSV」功能備份。
+    </p>
+  </div>
+</section>
+
+</div><!-- /container -->
+</main>
+
+<footer>
+  <div>計算風格學分析系統 · 2026　|　基於 Chinese EmoBank（Lee et al., 2022）</div>
+  <div class="citation">本系統純為學術研究用途。所有貼文資料僅儲存於本機瀏覽器，不上傳任何伺服器。</div>
+</footer>
+
+<div class="tooltip" id="tooltip"></div>
+<div class="toast" id="toast"></div>
+
+<!-- ── DETAIL MODAL ─────────────────────────────── -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">貼文詳細分析</div>
+      <button class="modal-close" id="modalClose">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
